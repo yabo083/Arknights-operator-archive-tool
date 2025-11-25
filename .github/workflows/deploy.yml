@@ -32,10 +32,24 @@ jobs:
       - name: Prepare deployment files
         run: |
           mkdir -p deploy
-          # 复制 formal 文件夹中的所有文件
-          cp -r formal/* deploy/
-          # 复制 resource 文件夹
+          # 保持原有目录结构
+          cp -r formal deploy/
           cp -r resource deploy/
+          # 创建重定向到 formal/missing_ops.html 的 index.html
+          cat > deploy/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="refresh" content="0;url=formal/missing_ops.html">
+            <title>Redirecting...</title>
+          </head>
+          <body>
+            <p>Redirecting to <a href="formal/missing_ops.html">Missing Operators Archive</a>...</p>
+            <script>window.location.href = "formal/missing_ops.html";</script>
+          </body>
+          </html>
+          EOF
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
