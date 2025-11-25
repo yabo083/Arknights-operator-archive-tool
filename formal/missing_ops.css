@@ -1,0 +1,1190 @@
+@font-face {
+    font-family: 'Futuru';
+    src: url('../resource/font/Futuru/Futuru-Regular-iF66d197b135b45.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Futuru';
+    src: url('../resource/font/Futuru/Futuru-Bold-iF66d197b0e43bd.otf') format('opentype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+:root {
+    --bg-color: #0a0a0a;
+    --text-primary: #ffffff;
+    --text-secondary: #888888;
+    --accent-cyan: #00ffcc;
+    --accent-yellow: #ffcc00;
+    --accent-red: #ff3333;
+    --card-bg: rgba(20, 20, 20, 0.8);
+    --card-border: rgba(255, 255, 255, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: 'Futuru', sans-serif;
+    overflow: hidden; /* Custom scroll handling */
+    height: 100vh;
+    width: 100vw;
+}
+
+.background-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+/* UI Layer */
+.ui-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+header {
+    pointer-events: auto;
+}
+
+.logo {
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.title-bilingual {
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), 
+                opacity 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.title-row {
+    display: flex;
+    gap: 2rem;
+    transition: gap 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* 英文 */
+.en {
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 300px;
+    font-family: 'Futuru', monospace; /* 等宽字体确保ORSS整齐 */
+    transition: max-width 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+                letter-spacing 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* 中文 */
+.cn {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-top: 0.3rem;
+    letter-spacing: 1px;
+    transition: opacity 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+                transform 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+                max-height 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    max-height: 2rem;
+}
+
+/* ORSS收缩状态 */
+.title-bilingual.mode-orss {
+    transform: scale(0.75);
+    opacity: 0.6;
+    transform-origin: left top;
+}
+
+.title-bilingual.mode-orss .title-row {
+    gap: 0.2rem; /* 紧凑间距 */
+}
+
+/* 隐藏原始英文文字 */
+.title-bilingual.mode-orss .en {
+    visibility: hidden;
+    position: relative;
+    width: 0.8em; /* 固定宽度确保视觉等宽 */
+    display: inline-block;
+}
+
+/* 用伪元素显示单个字母 */
+.title-bilingual.mode-orss .col:nth-child(1) .en::before {
+    content: "O";
+    visibility: visible;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    text-align: left; /* 居中对齐让字母在固定宽度内居中 */
+}
+
+.title-bilingual.mode-orss .col:nth-child(2) .en::before {
+    content: "R";
+    visibility: visible;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    text-align: left;
+}
+
+.title-bilingual.mode-orss .col:nth-child(3) .en::before {
+    content: "S";
+    visibility: visible;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    text-align: left;
+}
+
+.title-bilingual.mode-orss .col:nth-child(4) .en::before {
+    content: "S";
+    visibility: visible;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    text-align: left;
+}
+
+/* 隐藏中文 */
+.title-bilingual.mode-orss .cn {
+    opacity: 0;
+    transform: translateY(-10px);
+    max-height: 0;
+    margin-top: 0;
+}
+
+.subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-left: 1rem;
+    font-weight: normal;
+}
+
+.controls {
+    pointer-events: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.stats {
+    text-align: right;
+}
+
+.stat-item {
+    margin-bottom: 1rem;
+}
+
+.stat-item .label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+}
+
+.stat-item .value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--accent-cyan);
+}
+
+/* 3D Viewport */
+#viewport {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    perspective: 1000px;
+    overflow: hidden;
+    cursor: grab;
+}
+
+#viewport:active {
+    cursor: grabbing;
+}
+
+#world {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    transform-style: preserve-3d;
+}
+
+#helix {
+    position: absolute;
+    transform-style: preserve-3d;
+}
+
+/* Cards */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.card-wrapper {
+    position: absolute;
+    transform-style: preserve-3d;
+    width: 0;
+    height: 0;
+    animation: fadeIn 0.8s cubic-bezier(0.23, 1, 0.32, 1) backwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.op-card {
+    position: absolute;
+    width: 155px;
+    height: 165px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    left: -100px;
+    top: -150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    overflow: hidden;
+    /* Backface visibility is important for performance and effect */
+    backface-visibility: hidden; 
+    animation: float 6s ease-in-out infinite;
+}
+
+.op-card:hover {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+    z-index: 10;
+}
+
+.op-card .avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.95; /* 更接近不透明，减少明显的淡入效果 */
+    transition: transform 200ms ease, opacity 120ms linear; /* 缩放 + 短时透明度，避免模糊感 */
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.op-card:hover .avatar {
+    opacity: 1;
+    transform: scale(1.03); /* 轻微放大，替代明显的透明度动画 */
+}
+
+.op-card .info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+    transform: translateY(100%);
+    transition: transform 0.3s;
+}
+
+.op-card:hover .info {
+    transform: translateY(0);
+}
+
+.op-card .name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.op-card .date {
+    font-size: 0.8rem;
+    color: var(--accent-cyan);
+}
+
+/* Rarity Glow Effects */
+.op-card.rarity-1 { border-color: #ececec; box-shadow: 0 0 10px rgba(236, 236, 236, 0.3); }
+.op-card.rarity-1 .name { color: #ececec; text-shadow: 0 0 5px rgba(236, 236, 236, 0.5); }
+
+.op-card.rarity-2 { border-color: #bfca40; box-shadow: 0 0 10px rgba(191, 202, 64, 0.3); }
+.op-card.rarity-2 .name { color: #bfca40; text-shadow: 0 0 5px rgba(191, 202, 64, 0.5); }
+
+.op-card.rarity-3 { border-color: #2095d1; box-shadow: 0 0 10px rgba(32, 149, 209, 0.3); }
+.op-card.rarity-3 .name { color: #2095d1; text-shadow: 0 0 5px rgba(32, 149, 209, 0.5); }
+
+.op-card.rarity-4 { border-color: #d0c6d2; box-shadow: 0 0 10px rgba(208, 198, 210, 0.3); }
+.op-card.rarity-4 .name { color: #d0c6d2; text-shadow: 0 0 5px rgba(208, 198, 210, 0.5); }
+
+.op-card.rarity-5 { border-color: #f5ebc4; box-shadow: 0 0 10px rgba(245, 235, 196, 0.3); }
+.op-card.rarity-5 .name { color: #f5ebc4; text-shadow: 0 0 5px rgba(245, 235, 196, 0.5); }
+
+.op-card.rarity-6 { border-color: #f4a92b; box-shadow: 0 0 10px rgba(244, 169, 43, 0.3); }
+.op-card.rarity-6 .name { color: #f4a92b; text-shadow: 0 0 5px rgba(244, 169, 43, 0.5); }
+
+/* 6 Star - Gold-Red Iridescent */
+/* .op-card.rarity-6 {
+    border-color: #ffaa00;
+    border-image: linear-gradient(45deg, #ffaa00, #ff3333, #ffaa00) 1;
+    box-shadow: 0 0 10px rgba(255, 170, 0, 0.2), 0 0 4px rgba(255, 51, 51, 0.2);
+}
+.op-card.rarity-6 .name {
+    background: linear-gradient(to right, #f4a92b, #c79c1f, #bc6129);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 10px rgba(255, 170, 0, 0.3);
+    font-weight: 800;
+} */
+
+/* Detail Panel */
+.detail-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.3s;
+    pointer-events: auto;
+}
+
+.detail-panel.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.panel-content {
+    width: 800px;
+    height: 500px;
+    background: #111;
+    border: 1px solid #333;
+    display: flex;
+    position: relative;
+    box-shadow: 0 0 50px rgba(0,0,0,0.8);
+}
+
+.close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.char-visual {
+    flex: 1;
+    background: #1a1a1a;
+    overflow: hidden;
+    position: relative;
+}
+
+.char-img-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.char-img-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.char-info {
+    flex: 1;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.char-info h2 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.meta-row {
+    margin-bottom: 2rem;
+}
+
+.rarity-tag {
+    color: var(--accent-yellow);
+    margin-right: 1rem;
+    letter-spacing: 2px;
+}
+
+.info-block {
+    margin-bottom: 1.5rem;
+}
+
+.info-block label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.2rem;
+}
+
+.info-block p {
+    font-size: 1.2rem;
+}
+
+.highlight-red {
+    color: var(--accent-red);
+    font-weight: bold;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 300;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-box {
+    background: #111;
+    border: 1px solid var(--accent-cyan);
+    padding: 2rem;
+    width: 500px;
+}
+
+.modal-box textarea {
+    width: 100%;
+    height: 200px;
+    background: #000;
+    border: 1px solid #333;
+    color: var(--accent-cyan);
+    margin: 1rem 0;
+    padding: 0.5rem;
+    font-family: monospace;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+button {
+    padding: 0.5rem 1.5rem;
+    cursor: pointer;
+    font-family: 'Futuru', sans-serif;
+    text-transform: uppercase;
+    border: none;
+}
+
+.btn-primary {
+    background: var(--accent-cyan);
+    color: #000;
+    font-weight: bold;
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid #555;
+    color: #fff;
+}
+
+.btn-glitch {
+    background: transparent;
+    border: 1px solid var(--accent-cyan);
+    color: var(--accent-cyan);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-glitch:hover {
+    background: rgba(0, 255, 204, 0.1);
+}
+
+/* Wiki Button */
+.btn-wiki {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--text-secondary);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-wiki:hover {
+    background: var(--accent-cyan);
+    color: #000;
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+}
+
+/* Button Group */
+.btn-group {
+    display: flex;
+    gap: 1rem;
+    position: relative;
+}
+
+/* 导入按钮始终保持正常样式 */
+#importBtn {
+    padding: 0.5rem 1.5rem;
+    white-space: nowrap;
+}
+
+/* 清除数据和生成报告按钮默认隐藏 */
+#clearBtn,
+#shareBtn {
+    opacity: 0;
+    transform: translateX(-20px);
+    pointer-events: none;
+    transition: opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+                transform 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+                max-width 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+                padding 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+                margin 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    max-width: 0;
+    overflow: hidden;
+    padding: 0.5rem 0;
+    margin: 0;
+    white-space: nowrap;
+}
+
+/* 当数据导入后，按钮滑出 */
+.btn-group.has-data #clearBtn,
+.btn-group.has-data #shareBtn {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+    max-width: 200px; /* 足够容纳按钮文字 */
+    padding: 0.5rem 1.5rem;
+    margin: 0;
+}
+
+/* 清除按钮延迟滑出 */
+#clearBtn {
+    transition-delay: 0.1s;
+}
+
+/* 生成报告按钮更晚滑出 */
+#shareBtn {
+    transition-delay: 0.2s;
+}
+
+/* Share Modal Specifics */
+.share-box {
+    width: 90%;
+    max-width: 500px; /* Adjust based on card size */
+    background: #111;
+    border: 1px solid var(--accent-cyan);
+}
+
+.share-preview-container {
+    width: 100%;
+    margin: 1rem 0;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid #333;
+}
+
+.share-preview-container img {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+}
+
+/* Hidden Share Card - Positioned off-screen but rendered */
+.share-card {
+    position: fixed;
+    left: -9999px;
+    top: 0;
+    width: 400px; /* Fixed width for consistency */
+    background: #0a0a0a;
+    color: #fff;
+    font-family: 'Futuru', sans-serif;
+    padding: 2rem;
+    border: 2px solid var(--accent-cyan);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    /* Add a subtle background pattern */
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.share-header {
+    border-bottom: 1px solid #333;
+    padding-bottom: 1rem;
+}
+
+.share-logo {
+    font-size: 0.8rem;
+    color: #888;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+}
+
+.share-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.share-date {
+    font-size: 0.9rem;
+    color: var(--accent-cyan);
+    text-align: right;
+}
+
+.share-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.share-stat {
+    display: flex;
+    flex-direction: column;
+}
+
+.share-stat .share-label {
+    font-size: 0.7rem;
+    color: #888;
+    margin-bottom: 0.2rem;
+}
+
+.share-stat .share-value {
+    font-size: 2rem;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.share-value.highlight { color: #fff; }
+.share-value.highlight-cyan { color: var(--accent-cyan); }
+.share-value.highlight-red { color: var(--accent-red); }
+
+.share-progress-section {
+    margin-top: 0.5rem;
+}
+
+.share-progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #222;
+    margin-top: 0.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.share-progress-fill {
+    height: 100%;
+    background: var(--accent-cyan);
+    width: 0%; /* Set by JS */
+}
+
+.share-6star-section {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-left: 2px solid var(--accent-yellow);
+}
+
+.share-sub-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.share-sub-stats b {
+    color: var(--accent-yellow);
+}
+
+.share-footer {
+    margin-top: 1rem;
+    border-top: 1px solid #333;
+    padding-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.share-id {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.share-watermark {
+    font-size: 0.6rem;
+    color: #555;
+}
+
+.share-deco-line {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 2px;
+    background: var(--accent-cyan);
+}
+
+.share-deco-corner {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 20px;
+    height: 20px;
+    border-bottom: 2px solid var(--accent-cyan);
+    border-right: 2px solid var(--accent-cyan);
+}
+
+/* Share Config Layout */
+.share-box-wide {
+    width: 95%;
+    max-width: 900px;
+    background: #111;
+    border: 1px solid var(--accent-cyan);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.share-layout {
+    display: flex;
+    gap: 2rem;
+    height: 60vh;
+}
+
+.share-preview-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Prevent flex overflow */
+}
+
+.share-preview-container {
+    flex: 1;
+    background: #000;
+    border: 1px solid #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.share-preview-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.share-config-section {
+    width: 300px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 1.5rem;
+    border: 1px solid #333;
+    overflow-y: auto;
+}
+
+.config-group {
+    margin-bottom: 1.5rem;
+}
+
+.config-group label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    letter-spacing: 1px;
+}
+
+.config-input, .config-select {
+    width: 100%;
+    background: #000;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 0.5rem;
+    font-family: 'Futuru', sans-serif;
+    font-size: 0.9rem;
+}
+
+.config-input:focus, .config-select:focus {
+    border-color: var(--accent-cyan);
+    outline: none;
+}
+
+.color-options {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.color-opt {
+    width: 30px;
+    height: 30px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.color-opt:hover {
+    transform: scale(1.1);
+}
+
+.color-opt.active {
+    border-color: #fff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Assistant Image in Share Card */
+.share-content-wrapper {
+    position: relative;
+    z-index: 2;
+}
+
+.share-content {
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8); /* Ensure text readability */
+}
+
+.share-assistant {
+    position: absolute;
+    left: -5px;
+    bottom: -5px;
+    width: 340px;
+    height: 360px;
+    z-index: 0;
+    opacity: 0.25;
+    pointer-events: none;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.share-assistant.hidden {
+    display: none;
+}
+
+.share-assistant img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: grayscale(100%) contrast(1.2);
+    /* Radial mask to fade edges */
+    mask-image: radial-gradient(circle at bottom center, black 30%, transparent 70%);
+    -webkit-mask-image: radial-gradient(circle at bottom center, black 30%, transparent 70%);
+}
+
+/* Adjust share card width if assistant is shown - NO CHANGE in width now */
+/* .share-card.has-assistant {
+    width: 550px;  Removed
+} */
+
+/* Morse Code Decoration */
+.share-morse-container {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 10;
+    overflow: hidden;
+}
+
+.morse-bar {
+    position: absolute;
+    font-family: monospace;
+    font-size: 8px;
+    color: rgba(255, 255, 255, 0.15);
+    white-space: nowrap;
+    line-height: 1;
+    letter-spacing: 2px;
+}
+
+.morse-top {
+    top: 8px;
+    left: 0;
+    width: 100%;
+    text-align: left;
+}
+
+.morse-bottom {
+    bottom: 8px;
+    left: 0;
+    width: 100%;
+    text-align: left;
+    transform: rotate(180deg);
+}
+
+.morse-left {
+    bottom: 0;
+    left: 8px;
+    transform-origin: bottom left;
+    transform: rotate(-90deg);
+    /* Width will be set by JS */
+    text-align: left;
+}
+
+.morse-right {
+    top: 0;
+    right: 8px;
+    left: auto;
+    transform-origin: top right;
+    transform: rotate(90deg);
+    /* Width will be set by JS */
+    text-align: left;
+}
+
+/* Empty Message Styles */
+.empty-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 50;
+    animation: fadeInUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.empty-message h2 {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+    color: var(--accent-cyan);
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    font-family: 'Futuru', sans-serif;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+}
+
+.empty-message .glitch-text {
+    position: relative;
+    display: inline-block;
+    animation: glitch 3s infinite;
+}
+
+.empty-message .glitch-text::before,
+.empty-message .glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.empty-message .glitch-text::before {
+    left: 1px;
+    text-shadow: -1px 0 var(--accent-cyan);
+    opacity: 0;
+    animation: glitch-flash 3s infinite;
+}
+
+.empty-message .glitch-text::after {
+    left: -1px;
+    text-shadow: 1px 0 var(--accent-cyan);
+    opacity: 0;
+    animation: glitch-flash 3s 0.15s infinite;
+}
+
+.empty-message p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+}
+
+@keyframes glitch {
+    0%, 85%, 100% {
+        transform: translate(0);
+    }
+    86% {
+        transform: translate(-2px, 1px);
+    }
+    87% {
+        transform: translate(1px, -2px);
+    }
+}
+
+@keyframes glitch-flash {
+    0%, 85%, 100% {
+        opacity: 0;
+    }
+    86%, 87%, 88% {
+        opacity: 0.3;
+    }
+    89%, 90% {
+        opacity: 0.5;
+    }
+    88% {
+        transform: translate(-1px, 2px);
+    }
+    89% {
+        transform: translate(3px, -1px);
+    }
+    90% {
+        transform: translate(-2px, 3px);
+    }
+    91% {
+        transform: translate(1px, -2px);
+    }
+    92% {
+        transform: translate(0, 0);
+    }
+    93% {
+        transform: translate(-2px, 1px);
+    }
+    94% {
+        transform: translate(2px, -2px);
+    }
+}
+
+/* ==================== Footer / Copyright ==================== */
+.site-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(10, 10, 10, 0.85);
+    border-top: 1px solid rgba(0, 255, 204, 0.15);
+    padding: 8px 20px;
+    z-index: 500;
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 10px;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    font-family: 'Futuru', sans-serif;
+}
+
+.copyright-text {
+    font-size: 10px;
+    letter-spacing: 0.3px;
+}
+
+.disclaimer {
+    color: rgba(255, 204, 0, 0.7);
+    font-size: 10px;
+}
+
+.site-info {
+    font-size: 10px;
+    color: rgba(136, 136, 136, 0.8);
+}
+
+.divider {
+    color: rgba(136, 136, 136, 0.4);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .footer-content {
+        font-size: 8px;
+        gap: 8px;
+    }
+    
+    .copyright-text,
+    .disclaimer,
+    .site-info {
+        font-size: 8px;
+    }
+}
+
+
+

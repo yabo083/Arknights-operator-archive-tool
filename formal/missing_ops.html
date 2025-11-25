@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="明日方舟未招募干员档案查询工具 - 统计和展示您的干员收集进度">
+    <meta name="keywords" content="明日方舟,干员,招募,档案,Arknights,Operator">
+    <meta name="author" content="Temporal Void">
+    <title>未招募干员档案 - Temporal Void</title>
+    <link rel="stylesheet" href="missing_ops.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        #audio-player {
+            /* 可以在这里覆盖默认尺寸 */
+            width: 400px;
+            height: 40px;
+            /* border: 1px solid #555; */ /* 移除边框 */
+            position: fixed; /* 固定在窗口，不随滚动条滚动 */
+            top: 20px; /* 距离顶部 20px */
+            right: 20px; /* 距离右侧 20px */
+            z-index: 1000; /* 确保显示在最上层 */
+        }
+    </style>
+</head>
+
+
+<body>
+
+
+    <script src="ArkInfoTip.js"></script>
+    <script src="AudioWave.js"></script>
+
+    <div id="audio-player"></div>
+
+    <script>
+        // 初始化播放器
+        const player = new AudioWave({
+            container: '#audio-player',
+            playlistUrl: './playlist.json',
+            musicBasePath: '../resource/music/',
+            autoPlay: true
+        });
+    </script>
+
+
+    <div class="background-layer">
+        <canvas id="noiseCanvas"></canvas>
+    </div>
+
+    <div class="ui-layer">
+        <header>
+            <div class="logo">RHODES ISLAND // HR DEPARTMENT</div>
+            <div class="title-bilingual">
+                <div class="title-row">
+                    <div class="col"><span class="en">OPERATOR</span><span class="cn">干员</span></div>
+                    <div class="col"><span class="en">RECRUITMENT</span><span class="cn">招募</span></div>
+                    <div class="col"><span class="en">STATUS</span><span class="cn">状态</span></div>
+                    <div class="col"><span class="en">SURVEY</span><span class="cn">普查</span></div>
+                </div>
+            </div>
+        </header>
+
+        <div class="controls">
+            <div class="btn-group" id="btnGroup">
+                <button id="importBtn" class="btn-glitch" data-text="导入数据">导入数据</button>
+                <button id="clearBtn" class="btn-glitch" data-text="清除数据">清除数据</button>
+                <button id="shareBtn" class="btn-glitch" data-text="生成报告">生成报告</button>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="label">MISSING</span>
+                    <span class="value" id="missingCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">TOTAL DAYS</span>
+                    <span class="value" id="totalDays">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewport">
+        <div id="world">
+            <div id="helix">
+                <!-- Cards will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="detailPanel" class="detail-panel hidden">
+        <div class="panel-content">
+            <button class="close-btn">×</button>
+            <div class="char-visual">
+                <div class="char-img-container">
+                    <img id="detailImg" src="" alt="">
+                </div>
+            </div>
+            <div class="char-info">
+                <h2 id="detailName" class="glitch-text">OPERATOR</h2>
+                <div class="meta-row">
+                    <span id="detailRarity" class="rarity-tag">★★★★★★</span>
+                    <span id="detailClass" class="class-tag">CLASS</span>
+                </div>
+                <div class="info-block">
+                    <label>上线时间 RELEASE DATE</label>
+                    <p id="detailDate">2023.01.01</p>
+                </div>
+                <div class="info-block">
+                    <label>获取方式 SOURCE</label>
+                    <p id="detailSource">HEADHUNTING</p>
+                </div>
+                <div class="info-block">
+                    <label>错失天数 DAYS MISSED</label>
+                    <p id="detailMissed" class="highlight-red">0 DAYS</p>
+                </div>
+                <a id="wikiLink" href="#" target="_blank" class="btn-wiki">PRTS Wiki</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div id="importModal" class="modal hidden">
+        <div class="modal-box">
+            <h3>SYNC LOCAL DATA</h3>
+            <p>请粘贴您的干员数据 JSON (包含 own 字段)</p>
+            <textarea id="importText" placeholder='[{"name": "...", "own": true}, ...]'></textarea>
+            <div class="modal-actions">
+                <button id="cancelImport" class="btn-secondary">CANCEL</button>
+                <button id="confirmImport" class="btn-primary">SYNC</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="modal hidden">
+        <div class="modal-box share-box-wide">
+            <div class="share-layout">
+                <div class="share-preview-section">
+                    <h3>PERSONNEL REPORT</h3>
+                    <div class="share-preview-container">
+                        <img id="sharePreviewImage" alt="Share Preview">
+                    </div>
+                </div>
+                <div class="share-config-section">
+                    <h3>CONFIGURATION</h3>
+                    <div class="config-group">
+                        <label>SIGNATURE</label>
+                        <input type="text" id="configName" value="DOCTOR" class="config-input">
+                    </div>
+                    <div class="config-group">
+                        <label>PRIMARY LANGUAGE</label>
+                        <select id="configLangPri" class="config-select">
+                            <option value="cn" selected>简体中文</option>
+                            <option value="en">ENGLISH</option>
+                            <option value="jp">日本語</option>
+                        </select>
+                    </div>
+                    <div class="config-group">
+                        <label>SECONDARY LANGUAGE</label>
+                        <select id="configLangSec" class="config-select">
+                            <option value="en" selected>ENGLISH</option>
+                            <option value="cn">简体中文</option>
+                            <option value="jp">日本語</option>
+                            <option value="none">NONE</option>
+                        </select>
+                    </div>
+                    <div class="config-group">
+                        <label>THEME COLOR</label>
+                        <div class="color-options" id="configTheme">
+                            <div class="color-opt active" data-color="cyan" style="background: #00ffcc;"></div>
+                            <div class="color-opt" data-color="yellow" style="background: #ffcc00;"></div>
+                            <div class="color-opt" data-color="red" style="background: #ff3333;"></div>
+                        </div>
+                    </div>
+                    <div class="config-group">
+                        <label>SHOW ASSISTANT</label>
+                        <select id="configAssistant" class="config-select">
+                            <option value="">NONE</option>
+                        </select>
+                    </div>
+                    <button id="refreshShare" class="btn-glitch" style="width: 100%; margin-top: 1rem;"
+                        data-text="UPDATE PREVIEW">UPDATE PREVIEW</button>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="closeShare" class="btn-secondary">CLOSE</button>
+                <button id="downloadShare" class="btn-primary">DOWNLOAD</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Share Card Template -->
+    <div id="shareCardContainer" class="share-card">
+        <div class="share-header">
+            <div class="share-logo">RHODES ISLAND // HR</div>
+            <div class="share-title" id="lblTitle">OPERATOR COLLECTION REPORT</div>
+            <div class="share-date" id="shareDate">2025.11.25</div>
+        </div>
+
+        <div class="share-content-wrapper">
+            <div class="share-content">
+                <div class="share-stats-grid">
+                    <div class="share-stat">
+                        <div class="share-label" id="lblTotal">TOTAL OPERATORS</div>
+                        <div class="share-value" id="shareTotalOps">000</div>
+                    </div>
+                    <div class="share-stat">
+                        <div class="share-label" id="lblRecruited">RECRUITED</div>
+                        <div class="share-value highlight" id="shareOwnedOps">000</div>
+                    </div>
+                    <div class="share-stat">
+                        <div class="share-label" id="lblRate">COLLECTION RATE</div>
+                        <div class="share-value highlight-cyan" id="shareRate">00%</div>
+                    </div>
+                    <div class="share-stat">
+                        <div class="share-label" id="lblMissing">MISSING</div>
+                        <div class="share-value highlight-red" id="shareMissing">00</div>
+                    </div>
+                </div>
+
+                <div class="share-progress-section">
+                    <div class="share-label" id="lblProgress">RECRUITMENT PROGRESS</div>
+                    <div class="share-progress-bar">
+                        <div class="share-progress-fill" id="shareProgressBar"></div>
+                    </div>
+                </div>
+
+                <div class="share-6star-section">
+                    <div class="share-label" id="lblElite">ELITE OPERATORS (6★) STATUS</div>
+                    <div class="share-sub-stats">
+                        <span><span id="lblOwned">OWNED</span>: <b id="share6StarOwned">0</b></span>
+                        <span><span id="lblTotalSub">TOTAL</span>: <b id="share6StarTotal">0</b></span>
+                        <span><span id="lblRateSub">RATE</span>: <b id="share6StarRate">0%</b></span>
+                    </div>
+                </div>
+
+                <div class="share-footer">
+                    <div class="share-id">ID: <span id="shareId">DOCTOR</span></div>
+                    <div class="share-watermark">GENERATED BY TEMPORAL VOID</div>
+                </div>
+            </div>
+
+            <!-- Assistant Image Area -->
+            <div class="share-assistant hidden" id="shareAssistantImg">
+                <img src="" alt="">
+            </div>
+        </div>
+
+        <!-- Decorative Elements -->
+        <div class="share-deco-line"></div>
+        <div class="share-deco-corner"></div>
+        <div id="shareMorseContainer" class="share-morse-container"></div>
+    </div>
+
+    <script src="missing_ops.js"></script>
+
+    <!-- Footer / Copyright -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <span class="copyright-text">© 2025 Hypergryph/Monster Siren Records/鹰角网络. All Rights Reserved.</span>
+            <span class="divider">|</span>
+            <span class="disclaimer">本站为非官方粉丝制作项目，仅供学习交流使用，不用于任何商业用途。</span>
+            <span class="divider">|</span>
+            <span class="site-info">Temporal Void - Build 2025</span>
+        </div>
+    </footer>
+</body>
+
+</html>
