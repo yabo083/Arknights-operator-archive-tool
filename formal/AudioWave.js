@@ -56,7 +56,7 @@
             font-size: 14px;
             letter-spacing: 1px;
             text-transform: uppercase;
-            pointer-events: auto;
+            pointer-events: none; /* 不阻挡事件 */
             opacity: 0;
             transition: opacity 0.3s, transform 0.3s;
             transform: translateY(20px);
@@ -70,6 +70,36 @@
             box-sizing: border-box;
             z-index: 2;
             cursor: pointer;
+        }
+
+        /* 响应式字体大小 */
+        @media (max-width: 768px) {
+            .audio-wave-status {
+                font-size: 11px;
+                letter-spacing: 0.5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .audio-wave-status {
+                font-size: 9px;
+                letter-spacing: 0.3px;
+            }
+        }
+
+        @media (max-width: 350px) {
+            .audio-wave-status {
+                font-size: 8px;
+                letter-spacing: 0.2px;
+            }
+        }
+
+        /* 移动端总是显示标题，因为没有hover */
+        @media (hover: none) and (pointer: coarse) {
+            .audio-wave-status {
+                opacity: 0.8;
+                transform: translateY(10px);
+            }
         }
 
         .audio-wave-status.dragging {
@@ -336,6 +366,85 @@
                 const newVolume = this.volume + (delta * this.volumeStepSize);
                 this.setVolume(newVolume, true); // 传入true表示播放音效
             }, { passive: false });
+
+            // ==================== 触摸事件支持 ====================
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let touchStartVolume = 0;
+            let touchStartTime = 0;
+            let hasMoved = false;
+
+            // 触摸开始
+            this.container.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    const touch = e.touches[0];
+                    touchStartX = touch.clientX;
+                    touchStartY = touch.clientY;
+                    touchStartVolume = this.volume;
+                    touchStartTime = Date.now();
+                    hasMoved = false;
+                    this.dragStartX = touchStartX;
+                    this.dragStartVolume = touchStartVolume;
+                }
+            }, { passive: true });
+
+            // 触摸移动
+            this.container.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 1) {
+                    const touch = e.touches[0];
+                    const deltaX = Math.abs(touch.clientX - touchStartX);
+                    const deltaY = Math.abs(touch.clientY - touchStartY);
+                    
+                    // 如果横向移动超过10px，认为是音量调节
+                    if (deltaX > 10) {
+                        e.preventDefault();
+                        hasMoved = true;
+                        
+                        if (!this.isDragging) {
+                            this.isDragging = true;
+                            this.container.classList.add('dragging');
+                            this.statusText.classList.add('dragging');
+                        }
+                        
+                        const volumeChange = (touch.clientX - touchStartX) / 300;
+                        let newVolume = touchStartVolume + volumeChange;
+                        newVolume = Math.max(0, Math.min(1, newVolume));
+                        this.setVolume(newVolume);
+                    } else if (deltaX > 5 || deltaY > 5) {
+                        // 轻微移动，也认为不是点击
+                        hasMoved = true;
+                    }
+                }
+            }, { passive: false });
+
+            // 触摸结束
+            this.container.addEventListener('touchend', (e) => {
+                const touchDuration = Date.now() - touchStartTime;
+                
+                // 如果没有移动且时间短，视为点击
+                if (!hasMoved && touchDuration < 500) {
+                    e.preventDefault();
+                    this.toggle();
+                }
+                
+                if (this.isDragging) {
+                    this.isDragging = false;
+                    this.container.classList.remove('dragging');
+                    this.statusText.classList.remove('dragging');
+                }
+                
+                hasMoved = false;
+            });
+
+            // 触摸取消
+            this.container.addEventListener('touchcancel', (e) => {
+                if (this.isDragging) {
+                    this.isDragging = false;
+                    this.container.classList.remove('dragging');
+                    this.statusText.classList.remove('dragging');
+                }
+                hasMoved = false;
+            });
         }
 
         /**

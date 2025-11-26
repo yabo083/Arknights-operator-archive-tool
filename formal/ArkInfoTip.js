@@ -347,6 +347,272 @@
         .ark-infotip.glitch .ark-infotip-title {
             animation: ark-glitch 0.3s;
         }
+
+        /* ==================== 响应式设计 ==================== */
+        
+        /* 平板设备 (768px - 1024px) */
+        @media screen and (max-width: 1024px) {
+            .ark-infotip-container {
+                gap: 10px;
+            }
+
+            .ark-infotip {
+                min-width: 280px;
+                max-width: 380px;
+                padding: 14px 18px 14px 14px;
+            }
+
+            .ark-infotip-icon {
+                width: 22px;
+                height: 22px;
+            }
+
+            .ark-infotip-title {
+                font-size: 13px;
+            }
+
+            .ark-infotip-message {
+                font-size: 12px;
+            }
+
+            .ark-infotip-hash {
+                font-size: 8px;
+            }
+        }
+
+        /* 移动设备 (< 768px) */
+        @media screen and (max-width: 768px) {
+            .ark-infotip-container {
+                gap: 8px;
+                left: 10px !important;
+                right: 10px !important;
+                transform: none !important;
+                width: calc(100% - 20px);
+            }
+
+            .ark-infotip-container.top-right,
+            .ark-infotip-container.top-left,
+            .ark-infotip-container.top-center {
+                top: 10px;
+            }
+
+            .ark-infotip-container.bottom-right,
+            .ark-infotip-container.bottom-left,
+            .ark-infotip-container.bottom-center {
+                bottom: 10px;
+            }
+
+            .ark-infotip {
+                min-width: 0;
+                max-width: 100%;
+                width: 100%;
+                padding: 12px 16px 12px 12px;
+                clip-path: polygon(
+                    0 0,
+                    calc(100% - 8px) 0,
+                    100% 8px,
+                    100% 100%,
+                    0 100%
+                );
+            }
+
+            .ark-infotip-content {
+                gap: 10px;
+            }
+
+            .ark-infotip-icon {
+                width: 20px;
+                height: 20px;
+                margin-top: 0;
+            }
+
+            .ark-infotip-title {
+                font-size: 12px;
+                letter-spacing: 0.5px;
+                margin-bottom: 2px;
+            }
+
+            .ark-infotip-message {
+                font-size: 11px;
+                line-height: 1.4;
+            }
+
+            .ark-infotip-hash {
+                font-size: 7px;
+                top: 3px;
+                right: 4px;
+            }
+
+            .ark-infotip-close {
+                width: 18px;
+                height: 18px;
+                top: 6px;
+                right: 6px;
+            }
+
+            .ark-infotip-progress {
+                height: 1.5px;
+            }
+        }
+
+        /* 小屏幕移动设备 (< 480px) */
+        @media screen and (max-width: 480px) {
+            .ark-infotip {
+                padding: 10px 14px 10px 10px;
+            }
+
+            .ark-infotip-content {
+                gap: 8px;
+            }
+
+            .ark-infotip-icon {
+                width: 18px;
+                height: 18px;
+            }
+
+            .ark-infotip-title {
+                font-size: 11px;
+            }
+
+            .ark-infotip-message {
+                font-size: 10px;
+            }
+
+            .ark-infotip-hash {
+                display: none; /* 在极小屏幕上隐藏编号 */
+            }
+        }
+
+        /* 横屏模式优化 */
+        @media screen and (max-width: 768px) and (orientation: landscape) {
+            .ark-infotip-container {
+                gap: 6px;
+            }
+
+            .ark-infotip {
+                padding: 10px 14px 10px 10px;
+            }
+
+            .ark-infotip-container.top-right,
+            .ark-infotip-container.top-left,
+            .ark-infotip-container.top-center {
+                top: 8px;
+            }
+
+            .ark-infotip-container.bottom-right,
+            .ark-infotip-container.bottom-left,
+            .ark-infotip-container.bottom-center {
+                bottom: 8px;
+            }
+        }
+
+        /* 触摸设备优化 */
+        @media (hover: none) and (pointer: coarse) {
+            .ark-infotip {
+                /* 增大触摸目标 */
+                padding: 14px 18px 14px 14px;
+            }
+
+            .ark-infotip-close {
+                /* 增大关闭按钮触摸区域 */
+                width: 24px;
+                height: 24px;
+                padding: 4px;
+            }
+
+            /* 禁用悬停效果 */
+            .ark-infotip-close:hover {
+                color: rgba(255, 255, 255, 0.4);
+            }
+
+            .ark-infotip-close:active {
+                color: rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        /* 高 DPI 屏幕优化 */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .ark-infotip {
+                border-width: 0.5px;
+            }
+
+            .ark-infotip .status-bar {
+                width: 3px;
+            }
+        }
+
+        /* 减弱动画模式 (尊重用户偏好) */
+        @media (prefers-reduced-motion: reduce) {
+            .ark-infotip,
+            .ark-infotip-progress-bar {
+                animation: none !important;
+                transition: none !important;
+            }
+
+            .ark-infotip.entering-right,
+            .ark-infotip.entering-left,
+            .ark-infotip.entering-top,
+            .ark-infotip.entering-bottom {
+                animation: none;
+                opacity: 1;
+                transform: none;
+            }
+
+            .ark-infotip.exiting-right,
+            .ark-infotip.exiting-left {
+                animation: none;
+                opacity: 0;
+            }
+        }
+
+        /* 深色模式支持 */
+        @media (prefers-color-scheme: light) {
+            .ark-infotip {
+                background: rgba(245, 245, 245, 0.95);
+                border-color: rgba(0, 0, 0, 0.1);
+            }
+
+            .ark-infotip::before {
+                background: repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 0, 0, 0.02) 2px,
+                    rgba(0, 0, 0, 0.02) 4px
+                );
+            }
+
+            .ark-infotip-title {
+                color: #1a1a1a;
+            }
+
+            .ark-infotip-message {
+                color: #4a4a4a;
+            }
+
+            .ark-infotip-hash {
+                color: rgba(0, 0, 0, 0.2);
+            }
+
+            .ark-infotip-close {
+                color: rgba(0, 0, 0, 0.4);
+            }
+
+            .ark-infotip-close:hover {
+                color: rgba(0, 0, 0, 0.8);
+            }
+
+            .ark-infotip-progress {
+                background: rgba(0, 0, 0, 0.05);
+            }
+        }
+
+        /* 打印样式 */
+        @media print {
+            .ark-infotip-container {
+                display: none !important;
+            }
+        }
     `;
 
     // ==================== SVG 图标定义 ====================
@@ -384,8 +650,75 @@
             // 容器缓存
             this.containers = {};
             
+            // 设备信息
+            this.deviceInfo = this.detectDevice();
+            
             // 初始化样式
             this.injectStyles();
+            
+            // 监听窗口大小变化
+            this.setupResizeHandler();
+        }
+
+        /**
+         * 检测设备类型和屏幕信息
+         * @returns {Object} 设备信息
+         */
+        detectDevice() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            const isLandscape = width > height;
+            
+            let deviceType = 'desktop';
+            if (width < 480) {
+                deviceType = 'mobile-small';
+            } else if (width < 768) {
+                deviceType = 'mobile';
+            } else if (width < 1024) {
+                deviceType = 'tablet';
+            }
+
+            return {
+                type: deviceType,
+                width: width,
+                height: height,
+                isTouchDevice: isTouchDevice,
+                isLandscape: isLandscape,
+                pixelRatio: window.devicePixelRatio || 1
+            };
+        }
+
+        /**
+         * 设置窗口大小变化监听
+         */
+        setupResizeHandler() {
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    this.deviceInfo = this.detectDevice();
+                    this.adjustContainersForDevice();
+                }, 150);
+            });
+        }
+
+        /**
+         * 根据设备调整容器
+         */
+        adjustContainersForDevice() {
+            // 在移动设备上，将所有通知统一到 top-center 位置
+            if (this.deviceInfo.type === 'mobile' || this.deviceInfo.type === 'mobile-small') {
+                Object.keys(this.containers).forEach(position => {
+                    if (position !== 'top-center' && position !== 'bottom-center') {
+                        const container = this.containers[position];
+                        if (container) {
+                            // 保持现有通知，但不强制移动
+                            // 新通知会使用移动端优化的位置
+                        }
+                    }
+                });
+            }
         }
 
         /**
@@ -432,8 +765,24 @@
                 position: 'top-right',  // 位置
                 closable: true,         // 是否显示关闭按钮
                 glitch: true,           // 是否启用故障效果
+                responsive: true,       // 是否启用响应式自适应
                 ...options
             };
+
+            // 响应式位置调整
+            if (config.responsive) {
+                config.position = this.getResponsivePosition(config.position);
+                
+                // 在移动设备上缩短显示时间
+                if ((this.deviceInfo.type === 'mobile' || this.deviceInfo.type === 'mobile-small') && config.duration > 0) {
+                    config.duration = Math.min(config.duration, 4000);
+                }
+                
+                // 在触摸设备上禁用 glitch 效果以提高性能
+                if (this.deviceInfo.isTouchDevice && this.deviceInfo.type !== 'desktop') {
+                    config.glitch = false;
+                }
+            }
 
             // 生成唯一消息编号
             this.messageCounter++;
@@ -587,6 +936,29 @@
         }
 
         /**
+         * 获取响应式位置
+         * @param {string} position - 原始位置
+         * @returns {string} 适配后的位置
+         */
+        getResponsivePosition(position) {
+            // 移动设备上统一使用顶部居中或底部居中
+            if (this.deviceInfo.type === 'mobile' || this.deviceInfo.type === 'mobile-small') {
+                if (position.includes('bottom')) {
+                    return 'bottom-center';
+                }
+                return 'top-center';
+            }
+            
+            // 平板设备上保持原位置
+            if (this.deviceInfo.type === 'tablet') {
+                return position;
+            }
+            
+            // 桌面设备保持原位置
+            return position;
+        }
+
+        /**
          * 根据位置获取动画方向
          * @param {string} position - 位置
          * @returns {string} 动画方向
@@ -602,6 +974,14 @@
                 return 'bottom';
             }
             return 'right';
+        }
+
+        /**
+         * 获取设备信息
+         * @returns {Object} 设备信息
+         */
+        getDeviceInfo() {
+            return { ...this.deviceInfo };
         }
 
         /**

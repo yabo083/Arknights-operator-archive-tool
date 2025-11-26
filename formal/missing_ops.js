@@ -1,12 +1,41 @@
-// Configuration
-const CONFIG = {
-    cardHeight: 5,
-    cardSpacing: 11,  // [调整] 稍微增加间距，防止重叠
-    radius: 580,      // [调整] 增大半径，减少边缘卡片的透视变形（倾斜感）
-    angleStep: 18,    // [调整] 减小角度间隔，让圆筒更密集
-    rotationSpeed: 0.2,
-    scrollSpeed: 0.05  // [调整] 降低滚动灵敏度，更有重量感
-};
+// Configuration - Responsive
+function getResponsiveConfig() {
+    const width = window.innerWidth;
+    
+    if (width <= 480) {
+        // Mobile phones
+        return {
+            cardHeight: 4,
+            cardSpacing: 9,
+            radius: 300,
+            angleStep: 20,
+            rotationSpeed: 0.15,
+            scrollSpeed: 0.04
+        };
+    } else if (width <= 768) {
+        // Tablets
+        return {
+            cardHeight: 4.5,
+            cardSpacing: 10,
+            radius: 420,
+            angleStep: 19,
+            rotationSpeed: 0.18,
+            scrollSpeed: 0.045
+        };
+    } else {
+        // Desktop
+        return {
+            cardHeight: 5,
+            cardSpacing: 11,
+            radius: 580,
+            angleStep: 18,
+            rotationSpeed: 0.2,
+            scrollSpeed: 0.05
+        };
+    }
+}
+
+let CONFIG = getResponsiveConfig();
 
 // State
 let state = {
@@ -267,14 +296,37 @@ function renderHelix() {
 
 // Interaction
 function setupInteractions() {
+    // Helper function: 检查事件是否发生在模态框内
+    function isEventInModal(e) {
+        // 检查所有可能打开的模态框
+        const modals = [els.importModal, els.shareModal, els.detailPanel];
+        for (const modal of modals) {
+            if (modal && !modal.classList.contains('hidden')) {
+                // 模态框可见，检查事件目标是否在模态框内
+                if (modal.contains(e.target)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     // Scroll / Wheel
     window.addEventListener('wheel', (e) => {
+        // 如果在模态框内滚动，不影响螺旋滚筒
+        if (isEventInModal(e)) {
+            return;
+        }
         state.targetScrollPos += e.deltaY * CONFIG.scrollSpeed;
         clampScroll(); // [新增] 限制边界
     });
 
     // Dragging (Simple implementation)
     document.addEventListener('mousedown', (e) => {
+        // 如果在模态框内点击，不触发拖拽
+        if (isEventInModal(e)) {
+            return;
+        }
         state.isDragging = true;
         state.lastMouseY = e.clientY;
         els.world.style.cursor = 'grabbing';
@@ -293,6 +345,30 @@ function setupInteractions() {
             clampScroll(); // [新增] 限制边界
         }
     });
+
+    // Touch support for mobile
+    let touchStartY = 0;
+    document.addEventListener('touchstart', (e) => {
+        // 如果在模态框内触摸，不触发拖拽
+        if (isEventInModal(e)) {
+            return;
+        }
+        state.isDragging = true;
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', () => {
+        state.isDragging = false;
+    });
+
+    document.addEventListener('touchmove', (e) => {
+        if (state.isDragging && e.touches.length > 0) {
+            const deltaY = e.touches[0].clientY - touchStartY;
+            state.targetScrollPos -= deltaY * 0.5; // 降低触摸滑动速度
+            touchStartY = e.touches[0].clientY;
+            clampScroll();
+        }
+    }, { passive: true });
 
     // Import Modal
     els.importBtn.addEventListener('click', () => {
@@ -555,6 +631,22 @@ function initNoise() {
     };
     window.addEventListener('resize', resize);
     resize();
+    
+    // Handle responsive config changes on resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            const newConfig = getResponsiveConfig();
+            if (JSON.stringify(newConfig) !== JSON.stringify(CONFIG)) {
+                CONFIG = newConfig;
+                // Re-render the helix with new config
+                if (state.missingOps.length > 0) {
+                    renderHelix();
+                }
+            }
+        }, 250);
+    });
 
     function loop() {
         const w = canvas.width;
