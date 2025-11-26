@@ -56,8 +56,12 @@ let shareConfig = {
     langPri: "cn",
     langSec: "en",
     theme: "cyan",
-    assistant: ""
+    assistant: "",
+    showQrCode: true // 是否显示二维码
 };
+
+// 固定的二维码链接（不开放用户配置，防止恶意链接）
+const QR_CODE_URL = "https://yabo083.github.io/Arknights-operator-archive-tool/formal/missing_ops.html";
 
 const DICTIONARY = {
     title: { cn: "干员收集报告", en: "OPERATOR COLLECTION REPORT", jp: "オペレーター収集報告" },
@@ -114,6 +118,9 @@ const els = {
     configAssistant: document.getElementById('configAssistant'),
     refreshShare: document.getElementById('refreshShare'),
     shareAssistantImg: document.getElementById('shareAssistantImg'),
+    // QR Code Elements
+    shareQrCode: document.getElementById('shareQrCode'),
+    configShowQr: document.getElementById('configShowQr'),
     // Labels
     lblTitle: document.getElementById('lblTitle'),
     lblTotal: document.getElementById('lblTotal'),
@@ -459,12 +466,53 @@ function setupInteractions() {
         });
     }
 
+    // Config Modal Toggle
+    const configToggleBtn = document.getElementById('configToggleBtn');
+    const configModal = document.getElementById('configModal');
+    const configCloseBtn = document.getElementById('configCloseBtn');
+    
+    if (configToggleBtn && configModal) {
+        configToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            configModal.classList.remove('hidden');
+            configModal.classList.add('active');
+        });
+    }
+    
+    if (configCloseBtn && configModal) {
+        configCloseBtn.addEventListener('click', () => {
+            configModal.classList.remove('active');
+            setTimeout(() => {
+                configModal.classList.add('hidden');
+            }, 300);
+        });
+    }
+    
+    // Close config modal on outside click
+    if (configModal) {
+        configModal.addEventListener('click', (e) => {
+            if (e.target === configModal) {
+                configModal.classList.remove('active');
+                setTimeout(() => {
+                    configModal.classList.add('hidden');
+                }, 300);
+            }
+        });
+    }
+
     // Config Interactions
     if (els.refreshShare) {
         els.refreshShare.addEventListener('click', () => {
             updateConfigFromUI();
             ArkInfoTip.info('正在更新预览...', 'Updating');
             generateShareCard(false); // false = don't toggle modal, just refresh
+            // 自动关闭配置模态框
+            if (configModal) {
+                configModal.classList.remove('active');
+                setTimeout(() => {
+                    configModal.classList.add('hidden');
+                }, 300);
+            }
         });
     }
 
@@ -486,6 +534,7 @@ function updateConfigFromUI() {
     shareConfig.langPri = els.configLangPri.value;
     shareConfig.langSec = els.configLangSec.value;
     shareConfig.assistant = els.configAssistant.value;
+    shareConfig.showQrCode = els.configShowQr?.checked ?? true;
 }
 
 function updateAssistantOptions() {
@@ -712,7 +761,12 @@ async function generateShareCard(showModal = true) {
     if (shareConfig.assistant) {
         const op = state.operators.find(o => o.name === shareConfig.assistant);
         if (op && op.avatarUrl) {
-            els.shareAssistantImg.querySelector('img').src = op.avatarUrl;
+            let img = els.shareAssistantImg.querySelector('img');
+            if (!img) {
+                img = document.createElement('img');
+                els.shareAssistantImg.appendChild(img);
+            }
+            img.src = op.avatarUrl;
             els.shareAssistantImg.classList.remove('hidden');
             // els.shareCardContainer.classList.add('has-assistant'); // No longer needed for width change
         } else {
@@ -739,6 +793,31 @@ async function generateShareCard(showModal = true) {
     els.share6StarRate.innerText = `${sixStarRate}%`;
     
     els.shareId.innerText = shareConfig.name;
+    
+    // QR Code Generation
+    if (els.shareQrCode) {
+        if (shareConfig.showQrCode && QR_CODE_URL) {
+            els.shareQrCode.classList.remove('hidden');
+            els.shareQrCode.innerHTML = ''; // 清除旧的二维码
+            
+            // 使用 kjua 生成高质量二维码
+            if (typeof kjua !== 'undefined') {
+                const qrElement = kjua({
+                    text: QR_CODE_URL,
+                    render: 'canvas',
+                    size: 200,           // 内部渲染尺寸，确保清晰度
+                    fill: themeColor,    // 前景色（二维码色块）
+                    back: '#0a0a0a',     // 背景色（深色背景，非透明确保可扫描）
+                    rounded: 0,          // 方形色块
+                    quiet: 1,            // 留白边框
+                    ecLevel: 'L'         // 低纠错级别，减少色块密度
+                });
+                els.shareQrCode.appendChild(qrElement);
+            }
+        } else {
+            els.shareQrCode.classList.add('hidden');
+        }
+    }
     
     // Morse Code Decoration
     const isFullCollection = (owned === total);
@@ -908,7 +987,12 @@ async function generateShareCard(showModal = true) {
             scale: 2, // High resolution
             logging: false,
             useCORS: true,
-            allowTaint: true
+            allowTaint: true,
+            ignoreElements: (element) => {
+                // [Fix] 忽略掉 world/helix 容器，防止 html2canvas 遍历其中的大量图片资源导致额外网络请求
+                if (element.id === 'world' || element.id === 'helix') return true;
+                return false;
+            }
         });
         
         const imgData = canvas.toDataURL('image/png');
